@@ -155,6 +155,7 @@
     <ClInclude Include="DisjSet.h" />
     <ClInclude Include="findRect.h" />
     <ClInclude Include="getLine.h" />
+    <ClInclude Include="imgRemap.h" />
     <ClInclude Include="mergeRect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

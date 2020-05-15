@@ -21,7 +21,7 @@ void printLine(
 
 void getLine(std::vector<cv::Rect>& vSrc, std::vector<std::vector<cv::Point>>& vDst, const int Dx, const int Dy) {
 	for (auto it = vSrc.begin(); it < vSrc.end();) {
-		if (it->area() < 150)it = vSrc.erase(it);
+		if (it->area() < 333)it = vSrc.erase(it); // 计算线段时忽略小矩形
 		else it++;
 	}
 	std::vector<cv::Rect>vY(vSrc);
@@ -105,7 +105,7 @@ void printLine(const std::vector<std::vector<cv::Point>> _lineV, const std::stri
 		for (auto jt = it->begin(); jt < it->end() - 1; jt++) {
 			avgY += jt->y;
 		}
-		avgY += (it->end() - 1)->y;
+		avgY = avgY + (it->end() - 1)->y;
 		avgY /= it->size();
 		for (auto jt = it->begin(); jt < it->end() - 1; jt++) {
 			s += cv::format("%d,%d,%lf\n", jt->x, jt->y, avgY);
@@ -114,4 +114,12 @@ void printLine(const std::vector<std::vector<cv::Point>> _lineV, const std::stri
 	}
 	fout << s;
 	fout.close();
+}
+void drawLine(cv::Mat& src, const std::vector<std::vector<cv::Point>> _lineV) {
+	int i = 0;
+	for (auto it = _lineV.begin(); it < _lineV.end(); i++, it++) {
+		for (auto jt = it->begin(); jt < it->end() - 1; jt++) {
+			line(src, *jt, *(jt + 1), CV_RGB(255 - 5 * i, 5 * i, 5 * i), 2);
+		}
+	}
 }

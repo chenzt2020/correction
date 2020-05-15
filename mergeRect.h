@@ -7,7 +7,7 @@ void mergeRect(
 	std::vector<cv::Rect>& vDst,
 	const int _DX = 2,
 	const int _DY = 2,
-	const int _area = 500
+	const int _area = 666
 );
 void mergeRect(
 	std::vector<cv::Rect>& vSrc,
@@ -56,5 +56,12 @@ void mergeRect(std::vector<cv::Rect>& vSrc, const int _mergeTimes) {
 		std::vector<cv::Rect> preVRect(vSrc);
 		mergeRect(preVRect, vSrc, i, i);
 		//printf("\n%d:%d", i + 1, rectV.size());
+	}
+}
+void drawRect(cv::Mat& src, const std::vector<cv::Rect>_rectV) {
+	int i = 0;
+	for (auto it = _rectV.begin(); it < _rectV.end(); i++, it++) {
+		rectangle(src, *it, CV_RGB(255, 0, 0));
+		putText(src, std::to_string(i), it->tl(), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(0, 0, 0));
 	}
 }

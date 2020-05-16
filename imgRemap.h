@@ -8,27 +8,28 @@ void imgRemap(const cv::Mat src, cv::Mat& dst) {
 	xMap.create(src.size(), CV_32FC1);
 	yMap.create(src.size(), CV_32FC1);
 
-	double  p00 = 189.2,
-		p10 = -0.1103,
-		p01 = 0.5939,
-		p20 = -0.0001594,
-		p11 = 0.000545,
-		p02 = 0.000303,
-		p30 = -3.089e-08,
-		p21 = -2.749e-08,
-		p12 = -5.526e-07,
-		p03 = -5.515e-08,
-		p40 = 4.15e-11,
-		p31 = 5.767e-11,
-		p22 = 8.625e-11,
-		p13 = 2.031e-10,
-		p04 = -2.33e-11,
-		p50 = 1.413e-14,
-		p41 = -6.62e-14,
-		p32 = 1.823e-14,
-		p23 = -2.473e-14,
-		p14 = -2.535e-14,
-		p05 = 7.057e-15;
+	double
+		p00 = 166.1,
+		p10 = -0.7753,
+		p01 = 0.9107,
+		p20 = 0.00103,
+		p11 = 0.0005531,
+		p02 = -5.086e-05,
+		p30 = -5.232e-07,
+		p21 = -6.841e-07,
+		p12 = -9.004e-08,
+		p03 = 7.072e-08,
+		p40 = 6.273e-11,
+		p31 = 3.652e-10,
+		p22 = 3.368e-11,
+		p13 = 2.161e-11,
+		p04 = -3.184e-11,
+		p50 = 1.67e-14,
+		p41 = -7.69e-14,
+		p32 = 1.743e-15,
+		p23 = -7.703e-15,
+		p14 = -9.393e-16,
+		p05 = 4.811e-15;
 
 	for (int x = 0; x < width; x++) {
 		for (int y = 0; y < height; y++) {
@@ -37,5 +38,5 @@ void imgRemap(const cv::Mat src, cv::Mat& dst) {
 		}
 	}
 
-	remap(src, dst, xMap, yMap, cv::INTER_LINEAR);
+	remap(src, dst, xMap, yMap, cv::INTER_CUBIC);
 }

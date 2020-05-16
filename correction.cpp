@@ -1,4 +1,5 @@
-﻿#include <opencv2/opencv.hpp>
+﻿#define _USE_MATH_DEFINES
+#include <opencv2/opencv.hpp>
 #include <cstdio>
 #include <iostream>
 #include "findRect.h"
@@ -11,14 +12,18 @@ using namespace std;
 using namespace cv;
 
 int main() {
-	string fileName = "1.jpg";
+	string fileName = "4.jpg";
 	string pureName = fileName.substr(0, fileName.rfind("."));
 	Mat img = imread(fileName);
+	Mat img0 = img.clone();
+	if (!img.data) {
+		cout << "读取" << fileName << "失败\n";
+		return -1;
+	}
 	Mat imgGray;
 	int width = img.cols, height = img.rows;
-	std::vector<cv::Rect>rectV;
-	Rect xBaseline, yBaseline;
-	std::vector<std::vector<cv::Point>>lineV;
+	vector<Rect>rectV;
+	vector<vector<Point>>lineV;
 
 	Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(DMorph, DMorph));
 	morphologyEx(img, img, MORPH_BLACKHAT, kernel);
@@ -26,41 +31,26 @@ int main() {
 	threshold(imgGray, imgGray, 255, 255, THRESH_OTSU | THRESH_BINARY_INV);
 	cvtColor(imgGray, img, COLOR_GRAY2BGR);
 
-	imwrite(pureName + "_a.jpg", imgGray);
-
+	//imwrite(pureName + "_a.jpg", imgGray);
 	bfs(imgGray, rectV);
-
-	for (auto it = rectV.begin(); it < rectV.end();) {
-		if (it->width > width / 3) {
-			xBaseline = *it;
-			it = rectV.erase(it);
-		}
-		else if (it->height > height / 3) {
-			yBaseline = *it;
-			it = rectV.erase(it);
-		}
-		else it++;
-	}
-
-	printf("--r:%d\n", rectV.size());
+	cout << "--r:" << rectV.size() << "\n";
 	mergeRect(rectV, mergeTimes);
-	printf("[]r:%d\n", rectV.size());
+	cout << "[]r:" << rectV.size() << "\n";
 	getLine(rectV, lineV);
 	sortLine(lineV);
-	printf("--l:%d\n", lineV.size());
+	cout << "--l:" << lineV.size() << "\n";
 
 	drawRect(img, rectV);
 	imwrite(pureName + "_b" + to_string(mergeTimes) + ".jpg", img);
-	printLine(lineV, pureName);
+	line2File(lineV, pureName);
 
 	Mat imgCopy = img.clone();
 	drawLine(imgCopy, lineV);
 	imwrite(pureName + "_c.jpg", imgCopy);
 
-	/*Mat imgOut;
+	Mat imgOut;
 	imgRemap(img0, imgOut);
-
-	imwrite(pureName + "_out.jpg", imgOut);*/
+	imwrite(pureName + "_cv.jpg", imgOut);
 	return 0;
 }
 /*
@@ -68,6 +58,6 @@ int main() {
 
 	2.清除竖直基准线右边的小噪点
 
-	*3.准确读取横基准线
+	3.准确读取横基准线
 
 */

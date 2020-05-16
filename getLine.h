@@ -3,18 +3,19 @@
 #include <unordered_map>
 #include <fstream>
 #include <iostream>
+#include <cmath>
 #include "DisjSet.h"
 
 void getLine(
 	std::vector<cv::Rect>& vSrc,
 	std::vector<std::vector<cv::Point>>& vDst,
 	const int Dx = 100,
-	const int Dy = 20
+	const int Dy = 10 // 中文取15，英文取10
 );
 void sortLine(
 	std::vector<std::vector<cv::Point>>& vSrc
 );
-void printLine(
+void line2File(
 	const std::vector<std::vector<cv::Point>> _lineV,
 	const std::string _pureName
 );
@@ -43,19 +44,23 @@ void getLine(std::vector<cv::Rect>& vSrc, std::vector<std::vector<cv::Point>>& v
 		if (it->height % 2)xrInt = it->y + it->height / 2 + Dy + 1;
 		else xrInt = it->y + it->height / 2 + Dy;
 		auto xr = std::upper_bound(vY.begin(), vY.end(), cv::Rect(0, xrInt, 0, 0), cmpY);
-
-		int next = i, xmin = 4096;
+		cv::Rect next;
+		int nexti, dMin = 8192;
 		for (auto jt = xl; jt < xr; jt++) {
-			if (jt->x < xmin && jt->x > it->x) {
-				xmin = jt->x;
-				next = jt - vY.begin();
-				//printf("+");
+			if (jt->x > it->x) {
+				int d = jt->x - it->x + abs(jt->y - it->y); // 距离：暂取D4
+				if (d < dMin) {
+					dMin = d;
+					next = *jt;
+					nexti = jt - vY.begin();
+					//printf("+");
+				}
 			}
 		}
-		if (xmin > it->x && xmin < it->x + it->width + Dx) {
+		if (next.x > it->x && next.x - next.width / 2 < it->x + it->width / 2 + Dx) {
 			f.find(i);
-			f.to_union(i, next);
-			//printf("  next:%d", next);
+			f.to_union(i, nexti);
+			//printf("  next:%d", nexti);
 		}
 	}
 
@@ -73,27 +78,42 @@ void getLine(std::vector<cv::Rect>& vSrc, std::vector<std::vector<cv::Point>>& v
 		vDst[map[f.find(i)]].emplace_back(vY[i].tl());
 	}
 }
+double vectorAngle(const cv::Point a, const cv::Point b) {
+	double dot = (double)a.x * b.x + a.y * b.y;
+	double mold = sqrt(((double)a.x * a.x + a.y * a.y) * (b.x * b.x + b.y * b.y));
+	return acos(dot / mold) * 180 / M_PI;
+}
 void sortLine(std::vector<std::vector<cv::Point>>& vSrc) {
 	auto cmpX = [](const cv::Point& a, const cv::Point& b) {return a.x < b.x; };
 	auto cmpY = [](const std::vector<cv::Point>& a, const std::vector<cv::Point>& b)
 	{return a.begin()->y < b.begin()->y; };
 	for (auto it = vSrc.begin(); it < vSrc.end();) {
-		if (it->size() < 8)it = vSrc.erase(it);
+		if (it->size() < 8)it = vSrc.erase(it); // 少于8个点的连线删去
 		else {
 			sort(it->begin(), it->end(), cmpX);
 			it++;
 		}
 	}
-	sort(vSrc.begin(), vSrc.end(), cmpY);
-	/*printf("\n");
-	for (auto it = vDst.begin(); it < vDst.end(); it++) {
-		for (auto jt = it->begin(); jt < it->end(); jt++) {
-			printf("\np:%d %d", jt->x, jt->y);
+	for (auto it = vSrc.begin(); it < vSrc.end();) {
+		bool eraseFlag = 0;
+		for (auto jt = it->begin(); jt < it->end() - 2;) {
+			double angle = vectorAngle(*jt - *(jt + 1), *(jt + 1) - *(jt + 2));
+			if (angle > 45) { // 拐角超过45度的连线删去整条线
+				eraseFlag = 1;
+				break;
+			}
+			else if (angle > 30) { // 拐角超过30度的连线删去线上的一个点
+				it->erase((jt + 1));
+				jt = it->begin();
+			}
+			else jt++;
 		}
-		printf("\n");
-	}*/
+		if (eraseFlag)it = vSrc.erase(it);
+		else it++;
+	}
+	sort(vSrc.begin(), vSrc.end(), cmpY);
 }
-void printLine(const std::vector<std::vector<cv::Point>> _lineV, const std::string _pureName) {
+void line2File(const std::vector<std::vector<cv::Point>> _lineV, const std::string _pureName) {
 	std::ofstream fout(_pureName + ".csv");
 	if (!fout) {
 		std::cout << _pureName << ".csv无法打开";

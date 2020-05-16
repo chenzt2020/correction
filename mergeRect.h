@@ -5,9 +5,9 @@
 void mergeRect(
 	std::vector<cv::Rect> vSrc,
 	std::vector<cv::Rect>& vDst,
-	const int _DX = 2,
-	const int _DY = 2,
-	const int _area = 666
+	const int _DX,
+	const int _DY,
+	const int _area
 );
 void mergeRect(
 	std::vector<cv::Rect>& vSrc,
@@ -36,7 +36,8 @@ void mergeRect(std::vector<cv::Rect> vSrc, std::vector<cv::Rect>& vDst,
 				int j = jt - vSrc.begin();
 				if (mark[j])continue;
 				int crossArea = (rect_ex & *jt).area();
-				if (it->area() > _area && jt->area() > _area && crossArea < 500)continue;
+				if (it->area() > _area && jt->area() > _area && crossArea < _area * 3 / 4)continue;
+				if (it->width > 100 || it->height > 40 || jt->width > 100 || jt->height > 40)continue;
 				if (crossArea) {
 					mark[j] = 1;
 					//printf("+");
@@ -52,11 +53,27 @@ void mergeRect(std::vector<cv::Rect> vSrc, std::vector<cv::Rect>& vDst,
 	mark = NULL;
 }
 void mergeRect(std::vector<cv::Rect>& vSrc, const int _mergeTimes) {
+	double avg = 0;
+	int avgn = 0, area = 666;
+	for (auto it = vSrc.begin(); it < vSrc.end(); it++) {
+		if (it->area() > 100 && it->area() < 2000) {
+			avgn++;
+			avg += it->area();
+		}
+	}
+	avg /= avgn;
+	if (avg < area)area = 333; // 中文取666，英文取333
 	for (int i = 0; i < _mergeTimes; i++) {
 		std::vector<cv::Rect> preVRect(vSrc);
-		mergeRect(preVRect, vSrc, i, i);
+		mergeRect(preVRect, vSrc, i, i, area);
 		//printf("\n%d:%d", i + 1, rectV.size());
 	}
+	/*for (auto it = vSrc.begin(); it < vSrc.end();) {
+		if (it->width > 300 || it->height > 200 || it->height / it->width > 3) {
+			it = vSrc.erase(it);
+		}
+		else it++;
+	}*/
 }
 void drawRect(cv::Mat& src, const std::vector<cv::Rect>_rectV) {
 	int i = 0;

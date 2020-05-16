@@ -340,3 +340,5 @@ ASALocalRun/
 healthchecksdb
 /1.csv
 /1_m_out.jpg
+*.jpg
+*.csv

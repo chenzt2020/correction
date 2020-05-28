@@ -1,49 +1,31 @@
 ﻿#pragma once
 #include <opencv2/opencv.hpp>
 #include <unordered_map>
-#include <fstream>
-#include <iostream>
 #include <cmath>
 #include "DisjSet.h"
+#define PI 3.14159265358979323846
 
-void getLine(
-	std::vector<cv::Rect>& vSrc,
-	std::vector<std::vector<cv::Point>>& vDst,
-	const int Dx = 100,
-	const int Dy = 10 // 中文取15，英文取10
-);
-void sortLine(
-	std::vector<std::vector<cv::Point>>& vSrc
-);
-void line2File(
-	const std::vector<std::vector<cv::Point>> _lineV,
-	const std::string _pureName
-);
-
-void getLine(std::vector<cv::Rect>& vSrc, std::vector<std::vector<cv::Point>>& vDst, const int Dx, const int Dy) {
-	for (auto it = vSrc.begin(); it < vSrc.end();) {
-		if (it->area() < 333)it = vSrc.erase(it); // 计算线段时忽略小矩形
+//从矩阵集vRect中搜索基准线，存到二维点集vLine中，合并宽度为width
+void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& vLine, const int width = 100) {
+	for (auto it = vRect.begin(); it < vRect.end();) {
+		if (it->area() < 200)it = vRect.erase(it); // 计算线段时忽略小矩形
 		else it++;
 	}
-	std::vector<cv::Rect>vY(vSrc);
+	std::vector<cv::Rect>vY(vRect);
 	for (auto it = vY.begin(); it < vY.end(); it++) {
 		it->x += it->width / 2;
 		it->y += it->height / 2;
 	}
-	auto cmpX = [](const cv::Rect& a, const cv::Rect& b) {return a.x < b.x; };
 	auto cmpY = [](const cv::Rect& a, const cv::Rect& b) {return a.y < b.y; };
-	sort(vSrc.begin(), vSrc.end(), cmpY);
+	sort(vRect.begin(), vRect.end(), cmpY);
 	sort(vY.begin(), vY.end(), cmpY);
-	int n = vSrc.size();
+	int n = vRect.size();
 	DisjSet f(n);
 	int i = 0;
 	for (auto it = vY.begin(); it < vY.end(); i++, it++) {
-		//printf("\n%d:%d %d %d", i, it->x, it->y, it->area());
-		auto xl = std::lower_bound(vY.begin(), vY.end(), cv::Rect(0, it->y - it->height / 2 - Dy, 0, 0), cmpY);
-		int xrInt;
-		if (it->height % 2)xrInt = it->y + it->height / 2 + Dy + 1;
-		else xrInt = it->y + it->height / 2 + Dy;
-		auto xr = std::upper_bound(vY.begin(), vY.end(), cv::Rect(0, xrInt, 0, 0), cmpY);
+		//printf("\ni:%d ", i);
+		auto xl = std::lower_bound(vY.begin(), vY.end(), cv::Rect(0, it->y - it->height * 2 / 3, 0, 0), cmpY);
+		auto xr = std::upper_bound(vY.begin(), vY.end(), cv::Rect(0, it->y + it->height * 2 / 3, 0, 0), cmpY);
 		cv::Rect next;
 		int nexti, dMin = 8192;
 		for (auto jt = xl; jt < xr; jt++) {
@@ -57,14 +39,14 @@ void getLine(std::vector<cv::Rect>& vSrc, std::vector<std::vector<cv::Point>>& v
 				}
 			}
 		}
-		if (next.x > it->x && next.x - next.width / 2 < it->x + it->width / 2 + Dx) {
-			f.find(i);
+		if (next.x > it->x && next.x - next.width / 2 < it->x + it->width / 2 + width) {
+			f.find(i); // 将连接的矩形用并查集记录
 			f.to_union(i, nexti);
-			//printf("  next:%d", nexti);
+			//printf("next:%d", nexti);
 		}
 	}
 
-	std::unordered_map<int, int>map;
+	std::unordered_map<int, int>map; // 将并查集中的点连成直线
 	int nLine = 0;
 	for (int i = 0; i < n; i++) {
 		if (f.find(i) == i) {
@@ -72,29 +54,37 @@ void getLine(std::vector<cv::Rect>& vSrc, std::vector<std::vector<cv::Point>>& v
 			nLine++;
 		}
 	}
-	vDst.clear();
-	vDst.insert(vDst.begin(), nLine, std::vector<cv::Point>());
+	vLine.clear();
+	vLine.insert(vLine.begin(), nLine, std::vector<cv::Point>());
 	for (int i = 0; i < n; i++) {
-		vDst[map[f.find(i)]].emplace_back(vY[i].tl());
+		vLine[map[f.find(i)]].emplace_back(vY[i].tl());
 	}
 }
+
+//计算两个向量间角度（此处以点表示向量）
 double vectorAngle(const cv::Point a, const cv::Point b) {
-	double dot = (double)a.x * b.x + a.y * b.y;
+	double dot = a.x * b.x + a.y * b.y;
 	double mold = sqrt(((double)a.x * a.x + a.y * a.y) * (b.x * b.x + b.y * b.y));
-	return acos(dot / mold) * 180 / M_PI;
+	return acos(dot / mold) * 180 / PI;
 }
-void sortLine(std::vector<std::vector<cv::Point>>& vSrc) {
+
+//进一步整理连线集，剔除过短的连线，剔除拐角过大的连线
+void sortLine(std::vector<std::vector<cv::Point>>& vLine) {
 	auto cmpX = [](const cv::Point& a, const cv::Point& b) {return a.x < b.x; };
 	auto cmpY = [](const std::vector<cv::Point>& a, const std::vector<cv::Point>& b)
 	{return a.begin()->y < b.begin()->y; };
-	for (auto it = vSrc.begin(); it < vSrc.end();) {
-		if (it->size() < 8)it = vSrc.erase(it); // 少于8个点的连线删去
-		else {
-			sort(it->begin(), it->end(), cmpX);
-			it++;
+
+	for (auto it = vLine.begin(); it < vLine.end();) {
+		if (it->size() < 5) {// 少于5个点的连线删去
+			it = vLine.erase(it);
+			continue;
 		}
+		sort(it->begin(), it->end(), cmpX);
+		if ((it->end() - 1)->x - it->begin()->x < 200)
+			it = vLine.erase(it); // 过短的连线删去
+		else it++;
 	}
-	for (auto it = vSrc.begin(); it < vSrc.end();) {
+	for (auto it = vLine.begin(); it < vLine.end();) {
 		bool eraseFlag = 0;
 		for (auto jt = it->begin(); jt < it->end() - 2;) {
 			double angle = vectorAngle(*jt - *(jt + 1), *(jt + 1) - *(jt + 2));
@@ -108,36 +98,16 @@ void sortLine(std::vector<std::vector<cv::Point>>& vSrc) {
 			}
 			else jt++;
 		}
-		if (eraseFlag)it = vSrc.erase(it);
+		if (eraseFlag)it = vLine.erase(it);
 		else it++;
 	}
-	sort(vSrc.begin(), vSrc.end(), cmpY);
+	sort(vLine.begin(), vLine.end(), cmpY);
 }
-void line2File(const std::vector<std::vector<cv::Point>> _lineV, const std::string _pureName) {
-	std::ofstream fout(_pureName + ".csv");
-	if (!fout) {
-		std::cout << _pureName << ".csv无法打开";
-		return;
-	}
-	std::string s;
-	for (auto it = _lineV.begin(); it < _lineV.end(); it++) {
-		double avgY = 0;
-		for (auto jt = it->begin(); jt < it->end() - 1; jt++) {
-			avgY += jt->y;
-		}
-		avgY = avgY + (it->end() - 1)->y;
-		avgY /= it->size();
-		for (auto jt = it->begin(); jt < it->end() - 1; jt++) {
-			s += cv::format("%d,%d,%lf\n", jt->x, jt->y, avgY);
-		}
-		s += cv::format("%d,%d,%lf\n", (it->end() - 1)->x, (it->end() - 1)->y, avgY);
-	}
-	fout << s;
-	fout.close();
-}
-void drawLine(cv::Mat& src, const std::vector<std::vector<cv::Point>> _lineV) {
+
+//将连线集vLine画到图像src上
+void drawLine(cv::Mat& src, const std::vector<std::vector<cv::Point>> vLine) {
 	int i = 0;
-	for (auto it = _lineV.begin(); it < _lineV.end(); i++, it++) {
+	for (auto it = vLine.begin(); it < vLine.end(); i++, it++) {
 		for (auto jt = it->begin(); jt < it->end() - 1; jt++) {
 			line(src, *jt, *(jt + 1), CV_RGB(255 - 5 * i, 5 * i, 5 * i), 2);
 		}

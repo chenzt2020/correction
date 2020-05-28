@@ -153,10 +153,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DisjSet.h" />
+    <ClInclude Include="file.h" />
     <ClInclude Include="findRect.h" />
     <ClInclude Include="getLine.h" />
     <ClInclude Include="imgRemap.h" />
     <ClInclude Include="mergeRect.h" />
+    <ClInclude Include="myHead.h" />
+    <ClInclude Include="pretreat.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

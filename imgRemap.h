@@ -1,5 +1,6 @@
 #pragma once
 #include <opencv2/opencv.hpp>
+//½«Í¼ÏñsrcÖØÓ³ÉäÎªÍ¼Ïñdst
 void imgRemap(const cv::Mat src, cv::Mat& dst) {
 	int height = src.rows;
 	int width = src.cols;
@@ -38,5 +39,5 @@ void imgRemap(const cv::Mat src, cv::Mat& dst) {
 		}
 	}
 
-	remap(src, dst, xMap, yMap, cv::INTER_CUBIC);
+	cv::remap(src, dst, xMap, yMap, cv::INTER_CUBIC);
 }

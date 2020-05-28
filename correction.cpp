@@ -1,63 +1,48 @@
-﻿#define _USE_MATH_DEFINES
-#include <opencv2/opencv.hpp>
+﻿#include <opencv2/opencv.hpp>
 #include <cstdio>
 #include <iostream>
-#include "findRect.h"
-#include "mergeRect.h"
-#include "getLine.h"
-#include "imgRemap.h"
+#include "myHead.h"
 #define DMorph 50
 #define mergeTimes 10
 using namespace std;
 using namespace cv;
 
 int main() {
-	string fileName = "4.jpg";
-	string pureName = fileName.substr(0, fileName.rfind("."));
-	Mat img = imread(fileName);
-	Mat img0 = img.clone();
-	if (!img.data) {
-		cout << "读取" << fileName << "失败\n";
-		return -1;
-	}
+	Mat img;
+	string pureName = imgRead("bp4.jpg", img);
 	Mat imgGray;
-	int width = img.cols, height = img.rows;
-	vector<Rect>rectV;
-	vector<vector<Point>>lineV;
-
-	Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(DMorph, DMorph));
-	morphologyEx(img, img, MORPH_BLACKHAT, kernel);
-	cvtColor(img, imgGray, COLOR_BGR2GRAY);
-	threshold(imgGray, imgGray, 255, 255, THRESH_OTSU | THRESH_BINARY_INV);
-	cvtColor(imgGray, img, COLOR_GRAY2BGR);
-
+	vector<Rect>vRect;
+	vector<vector<Point>>vLine;
+	
+	pretreat(img, imgGray);
+	cvtColor(imgGray, img, cv::COLOR_GRAY2BGR);
 	//imwrite(pureName + "_a.jpg", imgGray);
-	bfs(imgGray, rectV);
-	cout << "--r:" << rectV.size() << "\n";
-	mergeRect(rectV, mergeTimes);
-	cout << "[]r:" << rectV.size() << "\n";
-	getLine(rectV, lineV);
-	sortLine(lineV);
-	cout << "--l:" << lineV.size() << "\n";
+	bfs(imgGray, vRect);
+	cout << "[]r:" << vRect.size() << "\n";
+	mergeRect(vRect, mergeTimes);
+	cout << "[]r:" << vRect.size() << "\n";
+	getLine(vRect, vLine);
+	sortLine(vLine);
+	cout << "--l:" << vLine.size() << "\n";
 
-	drawRect(img, rectV);
-	imwrite(pureName + "_b" + to_string(mergeTimes) + ".jpg", img);
-	line2File(lineV, pureName);
+	drawRect(img, vRect);
+	//imwrite(pureName + "_b" + to_string(mergeTimes) + ".jpg", img);
+	lineWrite(vLine, pureName);
 
 	Mat imgCopy = img.clone();
-	drawLine(imgCopy, lineV);
+	drawLine(imgCopy, vLine);
 	imwrite(pureName + "_c.jpg", imgCopy);
 
-	Mat imgOut;
+	/*Mat imgOut;
 	imgRemap(img0, imgOut);
-	imwrite(pureName + "_cv.jpg", imgOut);
+	imwrite(pureName + "_cv.jpg", imgOut);*/
 	return 0;
 }
 /*
-	1.映射
+	1.映射 yes
 
-	2.清除竖直基准线右边的小噪点
+	2.清除竖直基准线右边的小噪点 yes
 
-	3.准确读取横基准线
+	3.准确读取横基准线 no
 
 */

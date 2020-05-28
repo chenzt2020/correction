@@ -35,5 +35,14 @@
     <ClInclude Include="imgRemap.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="pretreat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="file.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="myHead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,5 +1,4 @@
 ﻿#include <opencv2/opencv.hpp>
-#include <cstdio>
 #include <iostream>
 #include "myHead.h"
 #define DMorph 50
@@ -9,14 +8,19 @@ using namespace cv;
 
 int main() {
 	Mat img;
-	string pureName = imgRead("bp4.jpg", img);
+	string fileName;
+	cout << "要处理的文件：";
+	cin >> fileName;
+	string pureName = imgRead(fileName, img);
+	Mat img0 = img.clone();
 	Mat imgGray;
 	vector<Rect>vRect;
 	vector<vector<Point>>vLine;
-	
+
 	pretreat(img, imgGray);
 	cvtColor(imgGray, img, cv::COLOR_GRAY2BGR);
 	//imwrite(pureName + "_a.jpg", imgGray);
+
 	bfs(imgGray, vRect);
 	cout << "[]r:" << vRect.size() << "\n";
 	mergeRect(vRect, mergeTimes);
@@ -25,17 +29,21 @@ int main() {
 	sortLine(vLine);
 	cout << "--l:" << vLine.size() << "\n";
 
-	drawRect(img, vRect);
-	//imwrite(pureName + "_b" + to_string(mergeTimes) + ".jpg", img);
+	/*drawRect(img, vRect);
+	imwrite(pureName + "_b" + to_string(mergeTimes) + ".jpg", img);
 	lineWrite(vLine, pureName);
-
 	Mat imgCopy = img.clone();
 	drawLine(imgCopy, vLine);
-	imwrite(pureName + "_c.jpg", imgCopy);
+	imwrite(pureName + "_c.jpg", imgCopy);*/
 
-	/*Mat imgOut;
-	imgRemap(img0, imgOut);
-	imwrite(pureName + "_cv.jpg", imgOut);*/
+	Mat imgOut;
+	int nFit;
+	cout << "曲面拟合的阶数（推荐5阶以下）：";
+	cin >> nFit;
+	imgRemap(img0, imgOut, vLine, nFit);
+	imwrite(pureName + "_cv.jpg", imgOut);
+
+	system("pause");
 	return 0;
 }
 /*

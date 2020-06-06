@@ -1,14 +1,17 @@
-ï»¿#pragma once
-#include <opencv2/opencv.hpp>
+#pragma once
 #include <unordered_map>
-#include <cmath>
 #include "DisjSet.h"
 #define PI 3.14159265358979323846
 
-//ä»çŸ©é˜µé›†vRectä¸­æœç´¢åŸºå‡†çº¿ï¼Œå­˜åˆ°äºŒç»´ç‚¹é›†vLineä¸­ï¼Œåˆå¹¶å®½åº¦ä¸ºwidth
+/// <summary>
+/// ´Ó¾ØÕó¼¯ÖĞËÑË÷»ù×¼Ïß
+/// </summary>
+/// <param name="vRect">´ıËÑË÷¾ØÕó¼¯</param>
+/// <param name="vLine">»ù×¼Ïß¼¯£¬ÒÔ¶şÎ¬µã¼¯ĞÎÊ½±íÊ¾</param>
+/// <param name="width">ºÏ²¢¿í¶È£¬ÔÚÕâ¸ö¾àÀëÄÚµÄÁ½¸ö¾ØĞÎ»á±»¼ÓÈëµ½Ò»ÌõÏßÄÚ</param>
 void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& vLine, const int width = 100) {
 	for (auto it = vRect.begin(); it < vRect.end();) {
-		if (it->area() < 200)it = vRect.erase(it); // è®¡ç®—çº¿æ®µæ—¶å¿½ç•¥å°çŸ©å½¢
+		if (it->area() < 200)it = vRect.erase(it); // ¼ÆËãÏß¶ÎÊ±ºöÂÔĞ¡¾ØĞÎ
 		else it++;
 	}
 	std::vector<cv::Rect>vY(vRect);
@@ -30,7 +33,7 @@ void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& 
 		int nexti, dMin = 8192;
 		for (auto jt = xl; jt < xr; jt++) {
 			if (jt->x > it->x) {
-				int d = jt->x - it->x + abs(jt->y - it->y); // è·ç¦»ï¼šæš‚å–D4
+				int d = jt->x - it->x + abs(jt->y - it->y); // ¾àÀë£ºÔİÈ¡D4
 				if (d < dMin) {
 					dMin = d;
 					next = *jt;
@@ -40,13 +43,13 @@ void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& 
 			}
 		}
 		if (next.x > it->x && next.x - next.width / 2 < it->x + it->width / 2 + width) {
-			f.find(i); // å°†è¿æ¥çš„çŸ©å½¢ç”¨å¹¶æŸ¥é›†è®°å½•
+			f.find(i); // ½«Á¬½ÓµÄ¾ØĞÎÓÃ²¢²é¼¯¼ÇÂ¼
 			f.to_union(i, nexti);
 			//printf("next:%d", nexti);
 		}
 	}
 
-	std::unordered_map<int, int>map; // å°†å¹¶æŸ¥é›†ä¸­çš„ç‚¹è¿æˆç›´çº¿
+	std::unordered_map<int, int>map; // ½«²¢²é¼¯ÖĞµÄµãÁ¬³ÉÖ±Ïß
 	int nLine = 0;
 	for (int i = 0; i < n; i++) {
 		if (f.find(i) == i) {
@@ -61,38 +64,38 @@ void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& 
 	}
 }
 
-//è®¡ç®—ä¸¤ä¸ªå‘é‡é—´è§’åº¦ï¼ˆæ­¤å¤„ä»¥ç‚¹è¡¨ç¤ºå‘é‡ï¼‰
+//¼ÆËãÁ½¸öÏòÁ¿¼ä½Ç¶È£¨´Ë´¦ÒÔµã±íÊ¾ÏòÁ¿£©
 double vectorAngle(const cv::Point a, const cv::Point b) {
 	double dot = a.x * b.x + a.y * b.y;
 	double mold = sqrt(((double)a.x * a.x + a.y * a.y) * (b.x * b.x + b.y * b.y));
 	return acos(dot / mold) * 180 / PI;
 }
 
-//è¿›ä¸€æ­¥æ•´ç†è¿çº¿é›†ï¼Œå‰”é™¤è¿‡çŸ­çš„è¿çº¿ï¼Œå‰”é™¤æ‹è§’è¿‡å¤§çš„è¿çº¿
+//½øÒ»²½ÕûÀí»ù×¼Ïß¼¯£¬ÌŞ³ı¹ı¶ÌµÄÁ¬Ïß£¬ÌŞ³ı¹Õ½Ç¹ı´óµÄÁ¬Ïß
 void sortLine(std::vector<std::vector<cv::Point>>& vLine) {
 	auto cmpX = [](const cv::Point& a, const cv::Point& b) {return a.x < b.x; };
 	auto cmpY = [](const std::vector<cv::Point>& a, const std::vector<cv::Point>& b)
 	{return a.begin()->y < b.begin()->y; };
 
 	for (auto it = vLine.begin(); it < vLine.end();) {
-		if (it->size() < 5) {// å°‘äº5ä¸ªç‚¹çš„è¿çº¿åˆ å»
+		if (it->size() < 5) {// ÉÙÓÚ5¸öµãµÄÁ¬ÏßÉ¾È¥
 			it = vLine.erase(it);
 			continue;
 		}
 		sort(it->begin(), it->end(), cmpX);
 		if ((it->end() - 1)->x - it->begin()->x < 200)
-			it = vLine.erase(it); // è¿‡çŸ­çš„è¿çº¿åˆ å»
+			it = vLine.erase(it); // ¹ı¶ÌµÄÁ¬ÏßÉ¾È¥
 		else it++;
 	}
 	for (auto it = vLine.begin(); it < vLine.end();) {
 		bool eraseFlag = 0;
 		for (auto jt = it->begin(); jt < it->end() - 2;) {
 			double angle = vectorAngle(*jt - *(jt + 1), *(jt + 1) - *(jt + 2));
-			if (angle > 45) { // æ‹è§’è¶…è¿‡45åº¦çš„è¿çº¿åˆ å»æ•´æ¡çº¿
+			if (angle > 45) { // ¹Õ½Ç³¬¹ı45¶ÈµÄÁ¬ÏßÉ¾È¥ÕûÌõÏß
 				eraseFlag = 1;
 				break;
 			}
-			else if (angle > 30) { // æ‹è§’è¶…è¿‡30åº¦çš„è¿çº¿åˆ å»çº¿ä¸Šçš„ä¸€ä¸ªç‚¹
+			else if (angle > 30) { // ¹Õ½Ç³¬¹ı30¶ÈµÄÁ¬ÏßÉ¾È¥ÏßÉÏµÄÒ»¸öµã
 				it->erase((jt + 1));
 				jt = it->begin();
 			}
@@ -104,7 +107,7 @@ void sortLine(std::vector<std::vector<cv::Point>>& vLine) {
 	sort(vLine.begin(), vLine.end(), cmpY);
 }
 
-//å°†è¿çº¿é›†vLineç”»åˆ°å›¾åƒsrcä¸Š
+//½«Á¬Ïß¼¯vLine»­µ½Í¼ÏñsrcÉÏ
 void drawLine(cv::Mat& src, const std::vector<std::vector<cv::Point>> vLine) {
 	int i = 0;
 	for (auto it = vLine.begin(); it < vLine.end(); i++, it++) {

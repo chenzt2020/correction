@@ -1,6 +1,11 @@
 #pragma once
-#include <opencv2/opencv.hpp>
-//将图像src预处理为图像dst，参数为形态学运算核大小
+
+/// <summary>
+/// 通过形态学闭运算和OTSU预处理图像
+/// </summary>
+/// <param name="src">源图像</param>
+/// <param name="dst">目标图像</param>
+/// <param name="DMorph">形态学闭运算的核大小</param>
 void pretreat(const cv::Mat src, cv::Mat& dst, const int DMorph = 50) {
 	dst = src.clone();
 	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(DMorph, DMorph));

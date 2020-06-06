@@ -1,6 +1,4 @@
 #pragma once
-#include <opencv2/opencv.hpp>
-#include <vector>
 
 void mergeRect(std::vector<cv::Rect> vSrc, std::vector<cv::Rect>& vDst,
 	const int width, const int height) {
@@ -40,10 +38,11 @@ void mergeRect(std::vector<cv::Rect> vSrc, std::vector<cv::Rect>& vDst,
 	mark = NULL;
 }
 
-/* @brief 将未合并的矩形合并，多次合并会增加合并的搜索范围
-@param vRect 待合并矩形集
-@param _mergeTimes 合并的次数
-*/
+/// <summary>
+/// 将接近的矩形合并，多次合并会增加合并的搜索范围
+/// </summary>
+/// <param name="vRect">待合并矩形集</param>
+/// <param name="_mergeTimes">合并的次数</param>
 void mergeRect(std::vector<cv::Rect>& vRect, const int _mergeTimes) {
 	for (int i = 0; i < _mergeTimes; i++) {
 		std::vector<cv::Rect> preVRect(vRect);

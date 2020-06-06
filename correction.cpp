@@ -1,56 +1,44 @@
-﻿#include <opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include <iostream>
+#include <ctime>
 #include "myHead.h"
-#define DMorph 50
-#define mergeTimes 10
+#define N_FIT 4
 using namespace std;
 using namespace cv;
 
 int main() {
 	Mat img;
-	string fileName;
-	cout << "要处理的文件：";
-	cin >> fileName;
+	string fileName = "1.jpg";
+	//cout << "Ҫ�������ļ���";
+	//cin >> fileName;
 	string pureName = imgRead(fileName, img);
-	Mat img0 = img.clone();
-	Mat imgGray;
+	Mat imgGray, img1;
 	vector<Rect>vRect;
 	vector<vector<Point>>vLine;
 
 	pretreat(img, imgGray);
-	cvtColor(imgGray, img, cv::COLOR_GRAY2BGR);
+	cvtColor(imgGray, img1, cv::COLOR_GRAY2BGR);
 	//imwrite(pureName + "_a.jpg", imgGray);
 
 	bfs(imgGray, vRect);
 	cout << "[]r:" << vRect.size() << "\n";
-	mergeRect(vRect, mergeTimes);
+	mergeRect(vRect, 10);
 	cout << "[]r:" << vRect.size() << "\n";
 	getLine(vRect, vLine);
 	sortLine(vLine);
 	cout << "--l:" << vLine.size() << "\n";
-
-	/*drawRect(img, vRect);
-	imwrite(pureName + "_b" + to_string(mergeTimes) + ".jpg", img);
-	lineWrite(vLine, pureName);
-	Mat imgCopy = img.clone();
-	drawLine(imgCopy, vLine);
-	imwrite(pureName + "_c.jpg", imgCopy);*/
+	//drawRect(img1, vRect);
+	//imwrite(pureName + "_b" + to_string(mergeTimes) + ".jpg", img1);
+	//lineWrite(vLine, pureName);
+	//Mat img2 = img1.clone();
+	//drawLine(img2, vLine);
+	//imwrite(pureName + "_c.jpg", img2);
 
 	Mat imgOut;
-	int nFit;
-	cout << "曲面拟合的阶数（推荐5阶以下）：";
-	cin >> nFit;
-	imgRemap(img0, imgOut, vLine, nFit);
-	imwrite(pureName + "_cv.jpg", imgOut);
+	//cout << "������ϵĽ�����1~5�ף���";
+	//cin >> nFit;
+	imgRemap(img, imgOut, vLine, N_FIT);
+	//imwrite(pureName + "_cv.jpg", imgOut);
 
-	system("pause");
 	return 0;
 }
-/*
-	1.映射 yes
-
-	2.清除竖直基准线右边的小噪点 yes
-
-	3.准确读取横基准线 no
-
-*/

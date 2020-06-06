@@ -1,6 +1,4 @@
 #pragma once
-#include <opencv2/opencv.hpp>
-#include <string>
 #include <fstream>
 
 //读取图像到dst，并返回图像名称（不带拓展名）

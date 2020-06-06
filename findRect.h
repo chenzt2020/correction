@@ -1,7 +1,4 @@
 #pragma once
-#include <opencv2/opencv.hpp>
-#include <vector>
-#include <queue>
 
 int bfsSub(
 	const cv::Mat src,
@@ -11,11 +8,13 @@ int bfsSub(
 	const uchar _color
 );
 
-/* @brief 从图像src中搜索颜色为_color的连通域，并以矩形形式存到容器vRect里
-@param src 待搜索图像
-@param vRect 待存矩形容器
-@param _color 待搜索颜色
-*/
+/// <summary>
+/// 从图像src中搜索颜色为_color的连通域，并以矩形形式存到容器vRect里
+/// </summary>
+/// <param name="src">待搜索图像</param>
+/// <param name="vRect">待存矩形容器</param>
+/// <param name="_color">待搜索颜色</param>
+/// <returns>矩形个数</returns>
 int bfs(
 	const cv::Mat src,
 	std::vector<cv::Rect>& vRect,
@@ -33,7 +32,8 @@ int bfsSub(const cv::Mat src, std::vector<cv::Rect>& v, bool* mark, const int st
 	while (!q.empty()) {
 		int s = q.front();
 		q.pop();
-		if (s < 0 || s >= nTotalPx || mark[s] || src.data[s] != _color)continue;
+		if (s < 0 || s >= nTotalPx)continue;
+		if (mark[s] || src.data[s] != _color)continue;
 		nPixel++;
 		mark[s] = 1;
 		int x = s / width;

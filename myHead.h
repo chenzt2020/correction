@@ -1,4 +1,3 @@
-#pragma once
 #include "pretreat.h"
 #include "findRect.h"
 #include "mergeRect.h"

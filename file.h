@@ -6,7 +6,7 @@ std::string imgRead(std::string imgPath, cv::Mat& dst) {
 	std::string pureName = imgPath.substr(0, imgPath.rfind("."));
 	clock_t start = clock();
 	dst = cv::imread(imgPath);
-	printf("imread:%dms\n", clock() - start);
+	std::cout << "imread:" << clock() - start << "ms\n";
 	if (!dst.data) {
 		printf("¶ÁÈ¡Í¼ÏñÊ§°Ü\n");
 		exit(-1);

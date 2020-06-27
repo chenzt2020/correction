@@ -11,11 +11,10 @@ void mergeRect(std::vector<cv::Rect> vSrc, std::vector<cv::Rect>& vDst,
 	for (auto it = vSrc.begin(); it < vSrc.end(); it++, i++) {
 		if (mark[i])continue;
 		mark[i] = 1;
-		//printf("\n-i:%d", i);
 		while (1) {
 			auto xl = std::lower_bound(vSrc.begin(), vSrc.end(), cv::Rect(it->x - width, 0, 0, 0), cmp);
 			auto xr = std::upper_bound(vSrc.begin(), vSrc.end(), cv::Rect(it->x + it->width + width, 0, 0, 0), cmp);
-			//printf("\n-i:%d %d %d", i, xl - v.begin(), xr - v.begin());
+			//printf("\n-i:%d %d %d", i, xl - vSrc.begin(), xr - vSrc.begin());
 			bool flag = 0;
 			cv::Rect rectExpand = *it + cv::Size(2 * width, 2 * height) - cv::Point(width, height);
 			for (auto jt = xl; jt < xr; jt++) {
@@ -53,8 +52,8 @@ void mergeRect(std::vector<cv::Rect>& vRect, const int _mergeTimes) {
 // 将矩阵集vRect画到图像src上
 void drawRect(cv::Mat& src, const std::vector<cv::Rect>vRect) {
 	int i = 0;
-	for (auto it = vRect.begin(); it < vRect.end(); i++, it++) {
-		rectangle(src, *it, CV_RGB(255, 0, 0));
-		putText(src, std::to_string(i), it->tl(), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(0, 0, 0));
+	for (auto it : vRect) {
+		rectangle(src, it, CV_RGB(255, 0, 0));
+		putText(src, std::to_string(i++), it.tl() + cv::Point(0, 8), cv::FONT_HERSHEY_SIMPLEX, 0.4, CV_RGB(255, 0, 0));
 	}
 }

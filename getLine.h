@@ -15,9 +15,10 @@ void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& 
 		else it++;
 	}
 	std::vector<cv::Rect>vY(vRect);
-	for (auto it = vY.begin(); it < vY.end(); it++) {
-		it->x += it->width / 2;
-		it->y += it->height / 2;
+
+	for (auto& it : vY) {
+		it.x += it.width / 2;
+		it.y += it.height / 2;
 	}
 	auto cmpY = [](const cv::Rect& a, const cv::Rect& b) {return a.y < b.y; };
 	sort(vRect.begin(), vRect.end(), cmpY);
@@ -25,15 +26,15 @@ void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& 
 	int n = vRect.size();
 	DisjSet f(n);
 	int i = 0;
-	for (auto it = vY.begin(); it < vY.end(); i++, it++) {
+	for (auto it : vY) {
 		//printf("\ni:%d ", i);
-		auto xl = std::lower_bound(vY.begin(), vY.end(), cv::Rect(0, it->y - it->height * 2 / 3, 0, 0), cmpY);
-		auto xr = std::upper_bound(vY.begin(), vY.end(), cv::Rect(0, it->y + it->height * 2 / 3, 0, 0), cmpY);
+		auto xl = std::lower_bound(vY.begin(), vY.end(), cv::Rect(0, it.y - it.height * 2 / 3, 0, 0), cmpY);
+		auto xr = std::upper_bound(vY.begin(), vY.end(), cv::Rect(0, it.y + it.height * 2 / 3, 0, 0), cmpY);
 		cv::Rect next;
 		int nexti, dMin = 8192;
 		for (auto jt = xl; jt < xr; jt++) {
-			if (jt->x > it->x) {
-				int d = jt->x - it->x + abs(jt->y - it->y); // 距离：暂取D4
+			if (jt->x > it.x) {
+				int d = jt->x - it.x + abs(jt->y - it.y); // 距离：暂取D4
 				if (d < dMin) {
 					dMin = d;
 					next = *jt;
@@ -42,11 +43,12 @@ void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& 
 				}
 			}
 		}
-		if (next.x > it->x && next.x - next.width / 2 < it->x + it->width / 2 + width) {
+		if (next.x > it.x && next.x - next.width / 2 < it.x + it.width / 2 + width) {
 			f.find(i); // 将连接的矩形用并查集记录
 			f.to_union(i, nexti);
 			//printf("next:%d", nexti);
 		}
+		i++;
 	}
 
 	std::unordered_map<int, int>map; // 将并查集中的点连成直线
@@ -110,9 +112,10 @@ void sortLine(std::vector<std::vector<cv::Point>>& vLine) {
 // 将连线集vLine画到图像src上
 void drawLine(cv::Mat& src, const std::vector<std::vector<cv::Point>> vLine) {
 	int i = 0;
-	for (auto it = vLine.begin(); it < vLine.end(); i++, it++) {
-		for (auto jt = it->begin(); jt < it->end() - 1; jt++) {
+	for (auto it : vLine) {
+		for (auto jt = it.begin(); jt < it.end() - 1; jt++) {
 			line(src, *jt, *(jt + 1), CV_RGB(255 - 5 * i, 5 * i, 5 * i), 2);
 		}
+		i++;
 	}
 }

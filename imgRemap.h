@@ -129,6 +129,6 @@ void imgRemap(const cv::Mat src, cv::Mat& dst, const std::vector<std::vector<cv:
 			}
 		}
 	}*/
-	printf("remap:%dms\n", clock() - start);
+	std::cout << "remap-1:" << clock() - start << "ms\n";
 	cv::remap(src, dst, xMap, yMap, cv::INTER_CUBIC); // 可变：插值的种类
 }

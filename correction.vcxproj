@@ -154,6 +154,7 @@
     <ClCompile Include="correction.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="correct.h" />
     <ClInclude Include="DisjSet.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="findRect.h" />

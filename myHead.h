@@ -4,3 +4,4 @@
 #include "getLine.h"
 #include "imgRemap.h"
 #include "file.h"
+#include "correct.h"

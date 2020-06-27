@@ -64,14 +64,14 @@ void getLine(std::vector<cv::Rect>& vRect, std::vector<std::vector<cv::Point>>& 
 	}
 }
 
-//计算两个向量间角度（此处以点表示向量）
+// 计算两个向量间角度（此处以点表示向量）
 double vectorAngle(const cv::Point a, const cv::Point b) {
 	double dot = a.x * b.x + a.y * b.y;
 	double mold = sqrt(((double)a.x * a.x + a.y * a.y) * (b.x * b.x + b.y * b.y));
 	return acos(dot / mold) * 180 / PI;
 }
 
-//进一步整理基准线集，剔除过短的连线，剔除拐角过大的连线
+// 进一步整理基准线集，剔除过短的连线，剔除拐角过大的连线
 void sortLine(std::vector<std::vector<cv::Point>>& vLine) {
 	auto cmpX = [](const cv::Point& a, const cv::Point& b) {return a.x < b.x; };
 	auto cmpY = [](const std::vector<cv::Point>& a, const std::vector<cv::Point>& b)
@@ -107,7 +107,7 @@ void sortLine(std::vector<std::vector<cv::Point>>& vLine) {
 	sort(vLine.begin(), vLine.end(), cmpY);
 }
 
-//将连线集vLine画到图像src上
+// 将连线集vLine画到图像src上
 void drawLine(cv::Mat& src, const std::vector<std::vector<cv::Point>> vLine) {
 	int i = 0;
 	for (auto it = vLine.begin(); it < vLine.end(); i++, it++) {

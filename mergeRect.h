@@ -50,7 +50,7 @@ void mergeRect(std::vector<cv::Rect>& vRect, const int _mergeTimes) {
 	}
 }
 
-//将矩阵集vRect画到图像src上
+// 将矩阵集vRect画到图像src上
 void drawRect(cv::Mat& src, const std::vector<cv::Rect>vRect) {
 	int i = 0;
 	for (auto it = vRect.begin(); it < vRect.end(); i++, it++) {

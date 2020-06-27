@@ -1,5 +1,5 @@
 clear
-pureName= "bp4";
+pureName= "1";
 A = csvread(pureName+".csv");
 x = A(:,1);
 y = A(:,2);

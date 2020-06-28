@@ -1,14 +1,15 @@
 需要OpenCV环境
 
-1.Windows平台编译
-    
-新建vs2019工程，导入全部源文件，然后配置好依赖，用Release x64选项编译运行
+### Windows平台编译
 
-也可用vs2019+cmake编译
+1. 运行build.bat (需要安装CMake3.6以上+VS2019)
 
-2.Linux平台编译
+2. 打开VS2019工程，配置好OpenCV依赖，用Release x64选项编译运行
+
+### Linux平台编译
 ```sh
-    cmake .
-    cd build
-    make
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
 ```
